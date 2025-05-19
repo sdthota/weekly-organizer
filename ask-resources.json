@@ -1,0 +1,18 @@
+{
+    "deploy_settings": {
+      "default": {
+        "skill_id": "amzn1.ask.skill.dcae6145-02e5-43d1-b993-040f97de1ea7",
+        "resources": [
+          {
+            "type": "lambda",
+            "name": "MealPlannerFunction",
+            "filePath": ".",
+            "handler": "index.handler",
+            "runtime": "nodejs18.x",
+            "awsRegion": "us-east-1"
+          }
+        ]
+      }
+    }
+  }
+  

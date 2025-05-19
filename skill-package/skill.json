@@ -1,0 +1,27 @@
+{
+    "manifest": {
+      "publishingInformation": {
+        "locales": {
+          "en-US": {
+            "summary": "Meal planner",
+            "examplePhrases": [
+              "Alexa, open meal planner"
+            ],
+            "name": "Meal Planner",
+            "description": "Helps plan meals"
+          }
+        },
+        "isAvailableWorldwide": true,
+        "testingInstructions": "Test instructions here"
+      },
+      "apis": {
+        "custom": {
+          "endpoint": {
+            "uri": "ask-custom-MealPlannerSkill-default"  // ASK CLI auto-populates
+          }
+        }
+      },
+      "manifestVersion": "1.0"
+    }
+  }
+  
