@@ -1,78 +1,818 @@
 {
-  "type": "APL",
-  "version": "1.7",
-  "import": [
-    {
-      "name": "alexa-layouts",
-      "version": "1.3.0"
-    }
-  ],
-  "mainTemplate": {
-    "parameters": [
-      "mealData"
-    ],
-    "items": [
-      {
-        "type": "Frame",
-        "backgroundColor": "#FFFFFF",
-        "width": "100%",
-        "height": "100%",
-        "item": {
-          "type": "Container",
-          "direction": "column",
-          "items": [
-            {
-              "type": "Text",
-              "text": "Weekly Meal Planner",
-              "style": "textStylePrimary1",
-              "width": "100%",
-              "textAlign": "center",
-              "fontSize": "30dp",
-              "paddingBottom": "20dp"
-            },
-            {
-              "type": "GridSequence",
-              "scrollDirection": "vertical",
-              "width": "100%",
-              "height": "85vh",
-              "childWidth": "33%",
-              "childHeight": "80dp",
-              "numbered": false,
-              "items": [
+    "type": "APL",
+    "version": "1.8",
+    "theme": "dark",
+    "mainTemplate": {
+        "parameters": [
+            "mealData"
+        ],
+        "items": {
+            "type": "Container",
+            "width": "100vw",
+            "height": "100vh",
+            "direction": "column",
+            "items": [
                 {
-                  "type": "Frame",
-                  "borderColor": "black",
-                  "borderWidth": 1,
-                  "backgroundColor": "${data.backgroundColor}",
-                  "items": [
-                    {
-                      "type": "TouchWrapper",
-                      "onPress": [
+                    "type": "Container",
+                    "direction": "row",
+                    "height": "12%",
+                    "grow": 1,
+                    "items": [
                         {
-                          "type": "SendEvent",
-                          "arguments": [
-                            "editMeal",
-                            "${data.day}",
-                            "${data.mealType}"
-                          ]
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#404040",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Meal/Day",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Monday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Tuesday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Wednesday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Thursday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Friday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Saturday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#708090",
+                            "borderWidth": 1,
+                            "borderColor": "#888888",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Sunday",
+                                    "textAlign": "center",
+                                    "color": "#FFFFFF",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "40dp",
+                                    "height": "100%"
+                                }
+                            ]
                         }
-                      ],
-                      "item": {
-                        "type": "Text",
-                        "text": "${data.day} - ${data.mealType}: ${data.mealName}",
-                        "padding": "8dp",
-                        "fontSize": "16dp",
-                        "color": "#000000"
-                      }
-                    }
-                  ]
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "direction": "row",
+                    "height": "14%",
+                    "grow": 1,
+                    "items": [
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#E6E6E6",
+                            "borderWidth": 1,
+                            "borderColor": "#999999",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Breakfast",
+                                    "textAlign": "center",
+                                    "color": "#555555",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "38dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.monday}",
+                            "id": "input_mealData_breakfast_monday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "monday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.tuesday}",
+                            "id": "input_mealData_breakfast_tuesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "tuesday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.wednesday}",
+                            "id": "input_mealData_breakfast_wednesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "wednesday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.thursday}",
+                            "id": "input_mealData_breakfast_thursday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "thursday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.friday}",
+                            "id": "input_mealData_breakfast_friday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "friday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.saturday}",
+                            "id": "input_mealData_breakfast_saturday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "saturday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.breakfast.sunday}",
+                            "id": "input_mealData_breakfast_sunday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "sunday_breakfast=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "direction": "row",
+                    "height": "14%",
+                    "grow": 1,
+                    "items": [
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#E6E6E6",
+                            "borderWidth": 1,
+                            "borderColor": "#999999",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Lunch",
+                                    "textAlign": "center",
+                                    "color": "#555555",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "38dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.monday}",
+                            "id": "input_mealData_lunch_monday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "monday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.tuesday}",
+                            "id": "input_mealData_lunch_tuesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "tuesday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.wednesday}",
+                            "id": "input_mealData_lunch_wednesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "wednesdday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+
+                        },
+                           
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.thursday}",
+                            "id": "input_mealData_lunch_thursday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "thursday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.friday}",
+                            "id": "input_mealData_lunch_friday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "friday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.saturday}",
+                            "id": "input_mealData_lunch_saturday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "saturday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.lunch.sunday}",
+                            "id": "input_mealData_lunch_sunday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "sunday_lunch=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "direction": "row",
+                    "height": "14%",
+                    "grow": 1,
+                    "items": [
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#E6E6E6",
+                            "borderWidth": 1,
+                            "borderColor": "#999999",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Dinner",
+                                    "textAlign": "center",
+                                    "color": "#555555",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "38dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.monday}",
+                            "id": "input_mealData_dinner_monday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "monday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.tuesday}",
+                            "id": "input_mealData_dinner_tuesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "tuesday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.wednesday}",
+                            "id": "input_mealData_dinner_wednesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "wednesday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.thursday}",
+                            "id": "input_mealData_dinner_thursday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "thursday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.friday}",
+                            "id": "input_mealData_dinner_friday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "friday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.saturday}",
+                            "id": "input_mealData_dinner_saturday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "saturday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.dinner.sunday}",
+                            "id": "input_mealData_dinner_sunday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "sunday_dinner=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "direction": "row",
+                    "height": "14%",
+                    "grow": 1,
+                    "items": [
+                        {
+                            "type": "Frame",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "background": "#E6E6E6",
+                            "borderWidth": 1,
+                            "borderColor": "#999999",
+                            "items": [
+                                {
+                                    "type": "Text",
+                                    "text": "Activity",
+                                    "textAlign": "center",
+                                    "color": "#555555",
+                                    "fontFamily": "Amazon Ember",
+                                    "fontWeight": "600",
+                                    "fontStyle": "italic",
+                                    "fontSize": "38dp",
+                                    "height": "100%"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.monday}",
+                            "id": "input_mealData_activity_monday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "monday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.tuesday}",
+                            "id": "input_mealData_activity_tuesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "tuesday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.wednesday}",
+                            "id": "input_mealData_activity_wednesday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "wednesday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.thursday}",
+                            "id": "input_mealData_activity_thursday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "thursday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.friday}",
+                            "id": "input_mealData_activity_friday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "friday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.saturday}",
+                            "id": "input_mealData_activity_saturday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "saturday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "EditText",
+                            "width": "12.5%",
+                            "height": "100%",
+                            "text": "${mealData.properties.activity.sunday}",
+                            "id": "input_mealData_activity_sunday",
+                            "submitKeyType": "done",
+                            "onSubmit": [
+                                {
+                                 "type": "SendEvent",
+                                    "arguments": [
+                                        "save_meals",
+                                        "sunday_activity=${event.source.text}"
+                                    
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
                 }
-              ],
-              "data": "${mealData.meals}"
-            }
-          ]
+
+            ]
         }
-      }
-    ]
-  }
+    }
 }
+                 
