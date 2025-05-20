@@ -12,12 +12,13 @@ const LaunchRequestHandler = {
     },
     async handle(handlerInput) {
         const userId = handlerInput.requestEnvelope.context.System.user.userId;
-        const meals = await getUserMeals(userId);
+        const { structured, flatList } = await getUserMeals(userId);
 
-        const speakOutput = 'Welcome to your Weekly Meal Planner. You can say things like "Edit Monday breakfast to pancakes".';
+        const speakOutput = 'Welcome to your Weekly Organizer. You can say things like "Edit Monday breakfast to pancakes" or "Add Archery to Monday activity"';
         const aplSupported = Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
 
         if (aplSupported) {
+            console.log("APL supported device render attempt", structured);
             handlerInput.responseBuilder.addDirective({
                 type: 'Alexa.Presentation.APL.RenderDocument',
                 version: '1.0',
@@ -25,7 +26,7 @@ const LaunchRequestHandler = {
                 datasources: {
                     mealData: {
                         type: 'object',
-                        meals: meals || []
+                        properties: structured  // For APL like mealData.breakfast.monday
                     }
                 }
             });
@@ -40,33 +41,77 @@ const LaunchRequestHandler = {
 
 const EditMealIntentHandler = {
     canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'EditMealIntent';
+        const request = Alexa.getRequestType(handlerInput.requestEnvelope);
+
+        return (request === 'IntentRequest' && Alexa.getIntentName(handlerInput.requestEnvelope) === 'EditMealIntent');
     },
+
     async handle(handlerInput) {
-        const slots = handlerInput.requestEnvelope.request.intent.slots;
-        const day = slots.day.value;
-        const mealType = slots.mealType.value;
-        const mealName = slots.mealName.value;
-        const userId = handlerInput.requestEnvelope.context.System.user.userId;
+        const request = handlerInput.requestEnvelope;
+        const userId = request.context.System.user.userId;
+
+        let day, mealType, mealName;
+
+        // Voice-based intent
+        day = Alexa.getSlotValue(request, 'day');
+        mealType = Alexa.getSlotValue(request, 'mealType');
+        mealName = Alexa.getSlotValue(request, 'mealName');
+        
 
         if (!day || !mealType || !mealName) {
             return handlerInput.responseBuilder
-                .speak("Please specify a day, a meal type, and the name of the meal.")
-                .reprompt("Try saying, edit Monday breakfast to pancakes.")
+                .speak("Sorry, I couldn't understand the full meal details. Please try again.")
+                .reprompt("What meal would you like to update?")
                 .getResponse();
         }
 
-        // Save to DynamoDB
-        await updateMeal(userId, day, mealType, mealName);
+        const key = `${day.toLowerCase()}_${mealType.toLowerCase()}`;
+        const params = {
+            TableName: TABLE_NAME,
+            Key: { userId },
+            UpdateExpression: 'SET meals.#key = :value',
+            ExpressionAttributeNames: {
+                '#key': key
+            },
+            ExpressionAttributeValues: {
+                ':value': { S: mealName }
+            }
+        };
 
-        const speakOutput = `Updated ${day} ${mealType} to now be made a ${mealName}. Can I help you with anything else?`;
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt('Would you like to update another meal?')
-            .getResponse();
+        try {
+            await dynamoDB.update(params).promise();
+            const speakOutput = `Updated ${mealType} on ${day} to ${mealName}.`;
+
+            const { flatList, structured } = await getUserMeals(userId);
+
+            const aplSupported = Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
+            if (aplSupported) {
+                console.log("APL supported device render attempt", structured);
+                handlerInput.responseBuilder.addDirective({
+                    type: 'Alexa.Presentation.APL.RenderDocument',
+                    version: '1.0',
+                    document: require('./meal-planner-apl.json'),
+                    datasources: {
+                        mealData: {
+                            type: 'object',
+                            properties: structured  // For APL like mealData.breakfast.monday
+                        }
+                    }
+                });
+            }
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt("Would you like to edit another meal?")
+                .getResponse();
+        } catch (err) {
+            console.error('Error saving meal:', err);
+            return handlerInput.responseBuilder
+                .speak("Something went wrong while saving your meal. Please try again.")
+                .getResponse();
+        }
     }
 };
+
 
 const HelpIntentHandler = {
     canHandle(handlerInput) {
@@ -80,7 +125,71 @@ const HelpIntentHandler = {
             .getResponse();
     }
 };
+const SaveMealsFromAPLIntentHandler = {
+    canHandle(handlerInput) {
+      const request = handlerInput.requestEnvelope.request;
+      return request.type === 'Alexa.Presentation.APL.UserEvent' &&
+             request.arguments &&
+             request.arguments[0] === 'save_meals';
+    },
+  
+    async handle(handlerInput) {
+      const userId = handlerInput.requestEnvelope.context.System.user.userId;
+      const args = handlerInput.requestEnvelope.request.arguments.slice(1); // skip 'save_meals'
+      try {
+        for (const entry of args) {
+          const [key, mealName] = entry.split('=');
+          if (!key || mealName === undefined) continue;
+  
+          const params = {
+            TableName: TABLE_NAME,
+            Key: { userId },
+            UpdateExpression: 'SET meals.#key = :value',
+            ExpressionAttributeNames: {
+              '#key': key
+            },
+            ExpressionAttributeValues: {
+              ':value': { S: mealName }
+            }
+          };
+        console.log("Updating database",params);
 
+        await dynamoDB.update(params).promise();
+
+        const { flatList, structured } = await getUserMeals(userId);
+
+        const aplSupported = Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
+        if (aplSupported) {
+            console.log("APL supported device render attempt", structured);
+            handlerInput.responseBuilder.addDirective({
+                type: 'Alexa.Presentation.APL.RenderDocument',
+                version: '1.0',
+                document: require('./meal-planner-apl.json'),
+                datasources: {
+                    mealData: {
+                        type: 'object',
+                        properties: structured  // For APL like mealData.breakfast.monday
+                        }
+                    }
+                });
+            }
+            
+        }
+  
+        return handlerInput.responseBuilder
+                .speak("Updated the weekly organizer with your input")
+                .reprompt("Would you like to edit another activity or meal?")
+                .getResponse();
+      } catch (error) {
+        console.error('Error saving meals:', error);
+        return handlerInput.responseBuilder
+          .speak('Sorry, there was a problem saving your meals.')
+          .getResponse();
+      }
+    }
+  };
+  
+  
 const CancelAndStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -132,39 +241,115 @@ const ErrorHandler = {
 // DynamoDB helper functions
 async function updateMeal(userId, day, mealType, mealName) {
     const key = `${day.toLowerCase()}_${mealType.toLowerCase()}`;
-    const params = {
+
+    // First, fetch existing meals
+    const paramsGet = {
+        TableName: TABLE_NAME,
+        Key: { userId }
+    };
+
+    let meals = {};
+    try {
+        const result = await dynamoDB.get(paramsGet).promise();
+        meals = result.Item?.meals || {};
+    } catch (err) {
+        console.error("Error fetching meals for update:", err);
+    }
+
+    // Update in memory
+    meals[key] = mealName;
+
+    // Then, overwrite the `meals` map
+    const paramsUpdate = {
         TableName: TABLE_NAME,
         Key: { userId },
-        UpdateExpression: `SET meals.#key = :meal`,
-        ExpressionAttributeNames: {
-            '#key': key
-        },
+        UpdateExpression: `SET meals = :meals`,
         ExpressionAttributeValues: {
-            ':meal': mealName
-        },
-        ReturnValues: 'UPDATED_NEW'
+            ':meals': meals
+        }
     };
-    await dynamoDB.update(params).promise();
+
+    await dynamoDB.update(paramsUpdate).promise();
 }
+const GetAllMealsIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+               Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetAllMealsIntent';
+    },
+    async handle(handlerInput) {
+        const userId = handlerInput.requestEnvelope.context.System.user.userId;
+        const { flatList, structured } = await getUserMeals(userId);
+
+        let speakOutput = 'Here are your meals: ';
+
+        if (flatList.length === 0) {
+            speakOutput = 'You don’t have any meals saved yet.';
+        } else {
+            speakOutput += flatList.map(item =>
+                `${item.day} ${item.mealType}: ${item.mealName}`
+            ).join(', ');
+        }
+
+        const aplSupported = Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
+        if (aplSupported) {
+            handlerInput.responseBuilder.addDirective({
+                type: 'Alexa.Presentation.APL.RenderDocument',
+                version: '1.0',
+                document: require('./meal-planner-apl.json'),
+                datasources: {
+                    mealData: structured
+                }
+            });
+        }
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
 
 async function getUserMeals(userId) {
     const params = {
         TableName: TABLE_NAME,
         Key: { userId }
     };
+
     try {
         const result = await dynamoDB.get(params).promise();
         const mealsObj = result.Item?.meals || {};
-        return Object.entries(mealsObj).map(([key, value]) => {
+
+        const flatList = Object.entries(mealsObj).map(([key, value]) => {
             const [day, mealType] = key.split('_');
-            return { day, mealType, mealName: value };
+            return { day, mealType, mealName: value.S || value }; // handle raw or DynamoDB-typed
         });
+
+        const structured = flatList.reduce((acc, { day, mealType, mealName }) => {
+            if (!acc[mealType]) acc[mealType] = {};
+            acc[mealType][day] = mealName;
+            return acc;
+        }, {});
+
+        return { flatList, structured };
+
     } catch (error) {
         console.error('Error fetching meals:', error);
-        return [];
+        return { flatList: [], structured: {} }; // Ensure fallback shape
     }
 }
 
+
+const LoggingRequestInterceptor = {
+    process(handlerInput) {
+        console.log('REQUEST ENVELOPE = ', JSON.stringify(handlerInput.requestEnvelope, null, 2));
+    }
+};
+
+const LoggingResponseInterceptor = {
+    process(handlerInput, response) {
+        console.log('RESPONSE = ', JSON.stringify(response, null, 2));
+    }
+};
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
@@ -172,7 +357,11 @@ exports.handler = Alexa.SkillBuilders.custom()
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
-        SessionEndedRequestHandler
+        SessionEndedRequestHandler,
+        GetAllMealsIntentHandler,
+        SaveMealsFromAPLIntentHandler
     )
+    .addRequestInterceptors(LoggingRequestInterceptor)
+    .addResponseInterceptors(LoggingResponseInterceptor)
     .addErrorHandlers(ErrorHandler)
     .lambda();
