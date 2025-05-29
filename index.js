@@ -57,6 +57,7 @@ const EditMealIntentHandler = {
         mealType = Alexa.getSlotValue(request, 'mealType');
         mealName = Alexa.getSlotValue(request, 'mealName');
         
+        console.log("slot values:",day, mealType, mealName);
 
         if (!day || !mealType || !mealName) {
             return handlerInput.responseBuilder
@@ -79,6 +80,8 @@ const EditMealIntentHandler = {
         };
 
         try {
+            console.log("key:",key);
+            console.log("DB update params",params);
             await dynamoDB.update(params).promise();
             const speakOutput = `Updated ${mealType} on ${day} to ${mealName}.`;
 
@@ -137,6 +140,7 @@ const SaveMealsFromAPLIntentHandler = {
       const userId = handlerInput.requestEnvelope.context.System.user.userId;
       const args = handlerInput.requestEnvelope.request.arguments.slice(1); // skip 'save_meals'
       try {
+        console.log("input args", args);
         for (const entry of args) {
           const [key, mealName] = entry.split('=');
           if (!key || mealName === undefined) continue;
@@ -209,6 +213,7 @@ const FallbackIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
     },
     handle(handlerInput) {
+
         return handlerInput.responseBuilder
             .speak("Sorry, I didn’t understand that. Please try again.")
             .reprompt("Try saying, edit Monday lunch to pizza.")
@@ -216,6 +221,62 @@ const FallbackIntentHandler = {
     }
 };
 
+const FreeSpeechIntentHandler = {
+    canHandle(handlerInput) {
+      return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+        && Alexa.getIntentName(handlerInput.requestEnvelope) === 'FreeSpeechIntent';
+    },
+    handle(handlerInput) {
+      const querySlot = handlerInput.requestEnvelope.request.intent.slots.query;
+      const spokenText = querySlot && querySlot.value ? querySlot.value : '';
+  
+      console.log('Freeform speech captured:', spokenText);
+  
+      const speakOutput = 'Welcome to your Weekly Organizer. You can say things like "Edit Monday breakfast to pancakes" or "Add Archery to Monday activity"';
+  
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt('What would you like to do next?')
+        .getResponse();
+    }
+  };
+  const CanFulfillIntentRequestHandler = {
+    canHandle(handlerInput) {
+      return Alexa.getRequestType(handlerInput.requestEnvelope) === 'CanFulfillIntentRequest';
+    },
+    handle(handlerInput) {
+      const intentName = handlerInput.requestEnvelope.request.intent.name;
+      const slots = handlerInput.requestEnvelope.request.intent.slots;
+  
+      // Example: provide basic fulfillment info for known intents
+      switch (intentName) {
+        case 'GetAllMealsIntent':
+        case 'EditMealIntent':
+        case 'SaveMealsFromAPLIntentHandler':
+        case 'FreeSpeechIntent':
+          return handlerInput.responseBuilder
+            .withCanFulfillIntent({
+              canFulfill: 'YES',
+              slots: Object.keys(slots || {}).reduce((acc, slotName) => {
+                acc[slotName] = {
+                  canUnderstand: 'YES',
+                  canFulfill: 'YES'
+                };
+                return acc;
+              }, {})
+            })
+            .getResponse();
+  
+        default:
+          return handlerInput.responseBuilder
+            .withCanFulfillIntent({
+              canFulfill: 'NO'
+            })
+            .getResponse();
+      }
+    }
+  };
+  
 const SessionEndedRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
@@ -280,14 +341,16 @@ const GetAllMealsIntentHandler = {
         const userId = handlerInput.requestEnvelope.context.System.user.userId;
         const { flatList, structured } = await getUserMeals(userId);
 
-        let speakOutput = 'Here are your meals: ';
+        let speakOutput = 'Here are your meals: <break time="500ms"/>';
 
         if (flatList.length === 0) {
             speakOutput = 'You don’t have any meals saved yet.';
         } else {
-            speakOutput += flatList.map(item =>
-                `${item.day} ${item.mealType}: ${item.mealName}`
-            ).join(', ');
+            console.log("Flat list", flatList);
+            speakOutput += flatList
+            .map(item => escapeSSML(`${item.day} ${item.mealType}: ${item.mealName}`))
+            .join('<break time="500ms"/>');
+            
         }
 
         const aplSupported = Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
@@ -308,7 +371,15 @@ const GetAllMealsIntentHandler = {
     }
 };
 
-
+function escapeSSML(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+  
 async function getUserMeals(userId) {
     const params = {
         TableName: TABLE_NAME,
@@ -338,6 +409,35 @@ async function getUserMeals(userId) {
     }
 }
 
+  
+const YesIntentHandler = {
+    canHandle(handlerInput) {
+      return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+             Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent';
+    },
+    handle(handlerInput) {
+      const speakOutput = 'Great! Which meal would you like to add next?';
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt('Please tell me the meal you want to add. You can say things like edit Monday breakfast to pancakes')
+        .getResponse();
+    }
+  };
+  
+  const NoIntentHandler = {
+    canHandle(handlerInput) {
+      return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+             Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent';
+    },
+    handle(handlerInput) {
+      const speakOutput = 'Okay, your meals are all set. Goodbye!';
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .withShouldEndSession(true)
+        .getResponse();
+    }
+  };
+  
 
 const LoggingRequestInterceptor = {
     process(handlerInput) {
@@ -359,7 +459,11 @@ exports.handler = Alexa.SkillBuilders.custom()
         FallbackIntentHandler,
         SessionEndedRequestHandler,
         GetAllMealsIntentHandler,
-        SaveMealsFromAPLIntentHandler
+        SaveMealsFromAPLIntentHandler,
+        YesIntentHandler,
+        NoIntentHandler,
+        FreeSpeechIntentHandler,
+        CanFulfillIntentRequestHandler
     )
     .addRequestInterceptors(LoggingRequestInterceptor)
     .addResponseInterceptors(LoggingResponseInterceptor)
