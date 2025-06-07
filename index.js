@@ -66,6 +66,14 @@ const EditMealIntentHandler = {
                 .getResponse();
         }
 
+        const optional_table_create_params = {
+            TableName: TABLE_NAME,
+            Key: { userId },
+            UpdateExpression: 'SET meals = if_not_exists(meals, :empty)',
+            ExpressionAttributeValues: {
+                ':empty': { M: {} }
+            }
+        };
         const key = `${day.toLowerCase()}_${mealType.toLowerCase()}`;
         const params = {
             TableName: TABLE_NAME,
@@ -81,8 +89,13 @@ const EditMealIntentHandler = {
 
         try {
             console.log("key:",key);
+            console.log("DB create params",optional_table_create_params);
             console.log("DB update params",params);
+
+            await dynamoDB.update(optional_table_create_params).promise();
+            console.log("DB create success");
             await dynamoDB.update(params).promise();
+            console.log("DB update success");
             const speakOutput = `Updated ${mealType} on ${day} to ${mealName}.`;
 
             const { flatList, structured } = await getUserMeals(userId);
