@@ -351,7 +351,17 @@ const GetAllMealsIntentHandler = {
                Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetAllMealsIntent';
     },
     async handle(handlerInput) {
+        let day;
         const userId = handlerInput.requestEnvelope.context.System.user.userId;
+        const request = handlerInput.requestEnvelope;
+
+        day = Alexa.getSlotValue(request, 'dayinput');
+        if(day){
+            day = day.toLowerCase();
+            day = resolveDayReference(day).toLowerCase();
+            console.log("Day input", day);   
+        }
+
         const { flatList, structured } = await getUserMeals(userId);
 
         let speakOutput = 'Here are your meals: <break time="500ms"/>';
@@ -360,9 +370,22 @@ const GetAllMealsIntentHandler = {
             speakOutput = 'You don’t have any meals saved yet.';
         } else {
             console.log("Flat list", flatList);
-            speakOutput += flatList
-            .map(item => escapeSSML(`${item.day} ${item.mealType}: ${item.mealName}`))
-            .join('<break time="500ms"/>');
+
+            if(day){
+                const filteredList = flatList
+                .filter(item => item.day.toLowerCase() === day.toLowerCase())
+                .map(item => escapeSSML(`${item.day} ${item.mealType}: ${item.mealName}`))
+                .join('<break time="500ms"/>');;
+                console.log("Day Filtered list", filteredList);
+                speakOutput += filteredList
+                
+            }else{
+                console.log("Full list", flatList);
+
+                speakOutput += flatList
+                .map(item => escapeSSML(`${item.day} ${item.mealType}: ${item.mealName}`))
+                .join('<break time="500ms"/>');
+            }
             
         }
 
@@ -392,7 +415,28 @@ function escapeSSML(text) {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&apos;');
   }
-  
+  function resolveDayReference(slotValue) {
+    const lower = slotValue.toLowerCase();
+    const today = new Date();
+    
+    if (lower === 'today') {
+        console.log("resolve day reference", today.toLocaleDateString('en-US', { weekday: 'long' }));
+        return today.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+    if (lower === 'tomorrow') {
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        console.log("resolve day reference",tomorrow.toLocaleDateString('en-US', { weekday: 'long' }));
+        return tomorrow.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+    if (lower === 'yesterday') {
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        return yesterday.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+    return slotValue; // already a weekday like "sunday"
+}
+
 async function getUserMeals(userId) {
     const params = {
         TableName: TABLE_NAME,
