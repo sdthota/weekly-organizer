@@ -391,12 +391,16 @@ const GetAllMealsIntentHandler = {
 
         const aplSupported = Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
         if (aplSupported) {
+            console.log("APL supported device render attempt", structured);
             handlerInput.responseBuilder.addDirective({
                 type: 'Alexa.Presentation.APL.RenderDocument',
                 version: '1.0',
                 document: require('./meal-planner-apl.json'),
                 datasources: {
-                    mealData: structured
+                    mealData: {
+                        type: 'object',
+                        properties: structured  // For APL like mealData.breakfast.monday
+                    }
                 }
             });
         }
